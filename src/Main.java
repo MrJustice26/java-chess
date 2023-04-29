@@ -1,3 +1,4 @@
+import gui.Gui;
 import models.Board;
 
 public class Main {
@@ -5,7 +6,6 @@ public class Main {
         Board board = new Board();
         board.initCells();
         board.addFigures();
-        board.getBoard();
-
+        Gui gui = new Gui(board);
     }
 }

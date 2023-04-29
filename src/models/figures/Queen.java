@@ -7,5 +7,17 @@ public class Queen extends Figure {
     public Queen(Colors color, Cell cell) {
         super(color, cell);
         this.setFigureName(FigureNames.QUEEN);
+        String imageName = color == Colors.BLACK ? "black" : "white";
+        imageName = imageName.concat("-queen.png");
+        this.setImageName(imageName);
+    }
+
+    public boolean canMove(Cell target){
+        if(!super.canMove(target)) return false;
+        if(!this.getCell().isEmptyByVertical(target)) return false;
+        if(!this.getCell().isEmptyByHorizontal(target)) return false;
+        if(!this.getCell().isEmptyByDiagonal(target)) return false;
+
+        return true;
     }
 }
