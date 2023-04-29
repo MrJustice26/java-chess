@@ -8,8 +8,7 @@ public class Cell {
     private final Colors color;
 
     private Figure figure;
-    private Board board;
-    private boolean isAvailable;
+    private final Board board;
 
 
     public Cell(Board board, int x, int y, Colors color, Figure figure){
@@ -19,6 +18,9 @@ public class Cell {
         this.color = color;
         this.figure = figure;
     }
+
+    public int getX(){ return this.x; }
+    public int getY(){ return this.y; }
 
     public void setFigure(Figure figure){
         this.figure = figure;
@@ -33,8 +35,8 @@ public class Cell {
             return false;
         }
 
-        int minY = this.y < target.y ? this.y : target.y;
-        int maxY = this.y > target.y ? this.y : target.y;
+        int minY = Math.min(this.y, target.y);
+        int maxY = Math.max(this.y, target.y);
         for (int y = minY + 1; y < maxY; y++) {
             if(!this.board.getCell(this.x, y).isEmpty()) {
                 return false;
@@ -48,8 +50,8 @@ public class Cell {
             return false;
         }
 
-        int minX = this.x < target.x ? this.x : target.x;
-        int maxX = this.x > target.x ? this.x : target.x;
+        int minX = Math.min(this.x, target.x);
+        int maxX = Math.max(this.x, target.x);
         for (int x = minX + 1; x < maxX; x++) {
             if(!this.board.getCell(x, this.y).isEmpty()) {
                 return false;
@@ -83,7 +85,7 @@ public class Cell {
         if(!this.figure.canMove(target)) {
             System.out.println("Figure can't be moved to the target position");
             return false;
-        };
+        }
         target.setFigure(this.figure);
         this.setFigure(null);
         this.getFigure().setCell(target);
