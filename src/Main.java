@@ -6,6 +6,6 @@ public class Main {
         Board board = new Board();
         board.initCells();
         board.addFigures();
-        Gui gui = new Gui(board);
+        new Gui(board);
     }
 }
