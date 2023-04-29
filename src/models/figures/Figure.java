@@ -26,8 +26,21 @@ public class Figure {
         this.name = name;
     }
 
-    public boolean canMove(Cell target){
+    public void setCell(Cell cell){
+        this.cell = cell;
+    }
+
+    public boolean canMove(Cell target) {
+        if(target.isEmpty()){
+            return true;
+        }
+        if(target.getFigure().getColor() == this.getColor()) {
+            return false;
+        }
+        if(target.getFigure().getName() == FigureNames.KING){
+            return false;
+        }
         return true;
     }
-    public void moveFigure(Cell target){}
+
 }

@@ -26,12 +26,14 @@ public class Board {
         return this.cells[y][x];
     }
 
-    private void addPawns(){
-        for(int i = 0; i < 8; i++){
-        new Pawn(Colors.BLACK, this.getCell(i, 1));
-        new Pawn(Colors.WHITE, this.getCell(i, 6));
-        }
-    };
+    public void addFigures(){
+        this.addKings();
+        this.addQueens();
+        this.addBishops();
+        this.addHorses();
+        this.addRooks();
+        this.addPawns();
+    }
 
     private void addKings(){
         new King(Colors.BLACK, this.getCell(4,0));
@@ -62,6 +64,22 @@ public class Board {
         new Rook(Colors.BLACK, this.getCell(7, 0));
         new Rook(Colors.WHITE, this.getCell(0, 7));
         new Rook(Colors.WHITE, this.getCell(7, 7));
+    }
+
+    private void addPawns(){
+        for(int i = 0; i < 8; i++){
+            new Pawn(Colors.BLACK, this.getCell(i, 1));
+            new Pawn(Colors.WHITE, this.getCell(i, 6));
+        }
+    };
+
+    public void getBoard(){
+        for(int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++ ){
+                System.out.printf("[%s]", getCell(j, i).getFigure());
+            }
+            System.out.println("");
+        }
     }
 
 }
