@@ -7,6 +7,8 @@ public class Figure {
     private Cell cell;
     private FigureNames name;
 
+    private String imageName;
+
     public Figure(Colors color, Cell cell){
         this.color = color;
         this.cell = cell;
@@ -26,8 +28,16 @@ public class Figure {
         this.name = name;
     }
 
+    public void setImageName(String imageName){ this.imageName = imageName; }
+
+    public String getImageName() { return this.imageName; }
+
     public void setCell(Cell cell){
         this.cell = cell;
+    }
+
+    public Cell getCell(){
+        return this.cell;
     }
 
     public boolean canMove(Cell target) {
