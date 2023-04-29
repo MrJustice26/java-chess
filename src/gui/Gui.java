@@ -7,8 +7,6 @@ import models.figures.Figure;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class Gui {
 
@@ -42,44 +40,7 @@ public class Gui {
                 }
                 this.applyButtonOptions(button);
                 button.putClientProperty("cell", cell);
-                button.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        Cell cell = (Cell) button.getClientProperty("cell");
-
-                        switch(moveState){
-                            case NOT_SELECTED:
-                                if(cell.isEmpty()) return;
-
-                                button.setBackground(Color.darkGray);
-                                moveState = MoveStates.SELECTED;
-                                selectedButtonInstance = button;
-                                break;
-                            case SELECTED:
-                                Cell selectedCell = (Cell) selectedButtonInstance.getClientProperty("cell");
-                                Color selectedCellColor = selectedCell.getFigure().getColor() == Colors.BLACK ? Color.gray : Color.white;
-                                if(selectedCell == cell){
-                                    System.out.println("Same piece clicked");
-                                    System.out.println(selectedCellColor);
-                                    selectedButtonInstance.setBackground(selectedCellColor);
-                                    break;
-                                }
-                                if(selectedCell.getFigure().canMove(cell)){
-                                    System.out.println("Piece can go to");
-                                    moveState = MoveStates.NOT_SELECTED;
-                                    selectedButtonInstance.setBackground(Color.black);
-                                } else {
-                                    System.out.println("Piece can't go");
-                                    moveState = MoveStates.NOT_SELECTED;
-                                }
-
-
-                                break;
-                            default:
-                                System.out.println("ERROR: Undefined case in moveState!!!");
-                        }
-                    }
-                });
+                button.addActionListener(e -> actionButtonScript(button));
                 button.setBackground((i + j) % 2 == 0 ? Color.white : Color.gray);
                 panel.add(button);
             }
@@ -95,5 +56,41 @@ public class Gui {
         buttonInstance.setFocusPainted(false);
         buttonInstance.setBorderPainted(false);
         buttonInstance.setRolloverEnabled(false);
+    }
+
+    private void actionButtonScript(JButton button){
+        Cell cell = (Cell) button.getClientProperty("cell");
+
+        switch(moveState){
+            case NOT_SELECTED:
+                if(cell.isEmpty()) return;
+
+                button.setBackground(Color.darkGray);
+                moveState = MoveStates.SELECTED;
+                selectedButtonInstance = button;
+                break;
+            case SELECTED:
+                Cell selectedCell = (Cell) selectedButtonInstance.getClientProperty("cell");
+                Color selectedCellColor = selectedCell.getFigure().getColor() == Colors.BLACK ? Color.gray : Color.white;
+                if(selectedCell == cell){
+                    System.out.println("Same piece clicked");
+                    System.out.println(selectedCellColor);
+                    selectedButtonInstance.setBackground(selectedCellColor);
+                    break;
+                }
+                if(selectedCell.getFigure().canMove(cell)){
+                    System.out.println("Piece can go to");
+                    moveState = MoveStates.NOT_SELECTED;
+                    selectedButtonInstance.setBackground(Color.black);
+                } else {
+                    System.out.println("Piece can't go");
+                    moveState = MoveStates.NOT_SELECTED;
+                }
+
+
+                break;
+            default:
+                System.out.println("ERROR: Undefined case in moveState!!!");
+        }
     }
 }
