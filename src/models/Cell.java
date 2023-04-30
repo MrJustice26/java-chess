@@ -62,7 +62,7 @@ public class Cell {
 
     public boolean isEmptyByDiagonal(Cell target){
 
-        int differenceX = Math.abs(this.x - target.y);
+        int differenceX = Math.abs(this.x - target.x);
         int differenceY = Math.abs(this.y - target.y);
         if(differenceX != differenceY){
             return false;
@@ -81,15 +81,27 @@ public class Cell {
         return this.figure;
     }
 
-    public boolean moveFigure(Cell target){
-        if(!this.figure.canMove(target)) {
-            System.out.println("Figure can't be moved to the target position");
-            return false;
-        }
+    public void moveFigure(Cell target){
         target.setFigure(this.figure);
-        this.setFigure(null);
         this.getFigure().setCell(target);
-        return true;
+        this.setFigure(null);
 
+    }
+
+    public boolean[][] getAvailableMoves(){
+        boolean[][] availableMoves = new boolean[8][8];
+        if(this.getFigure() == null){
+            System.out.println("Figure is null!");
+            return availableMoves;
+        }
+        for(int y = 0; y < 8; y++){
+            for(int x = 0; x < 8; x++){
+                if(this.getFigure().canMove(this.board.getCell(x, y))){
+                    availableMoves[y][x] = true;
+                }
+            }
+        }
+
+        return availableMoves;
     }
 }
