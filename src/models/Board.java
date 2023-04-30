@@ -7,6 +7,8 @@ import models.figures.Horse;
 import models.figures.Rook;
 import models.figures.Pawn;
 
+import java.util.ArrayList;
+
 public class Board {
     Cell[][] cells = new Cell[8][8];
 
@@ -22,8 +24,14 @@ public class Board {
 
     }
 
+    ArrayList<String> recentMoves = new ArrayList<>();
+
     public Cell getCell(int x, int y){
-        return this.cells[y][x];
+        if(x >= 8 || y >= 8 || x < 0 || y < 0){
+            return null;
+        } else {
+            return this.cells[y][x];
+        }
     }
 
     public void addFigures(){
@@ -71,14 +79,19 @@ public class Board {
             new Pawn(Colors.BLACK, this.getCell(i, 1));
             new Pawn(Colors.WHITE, this.getCell(i, 6));
         }
-    };
+    }
 
-    public void getBoard(){
-        for(int i = 0; i < 8; i++){
-            for(int j = 0; j < 8; j++ ){
-                System.out.printf("[%s]", getCell(j, i).getFigure());
-            }
-            System.out.println("");
+    public void addRecentMove(String record){
+        this.recentMoves.add(record);
+    }
+
+    public String getRecentMove(){
+        return this.recentMoves.get(this.recentMoves.size() - 1);
+    }
+
+    public void getMoves(){
+        for (String recentMove : this.recentMoves) {
+            System.out.println(recentMove);
         }
     }
 
