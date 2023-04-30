@@ -14,10 +14,8 @@ public class Queen extends Figure {
 
     public boolean canMove(Cell target){
         if(!super.canMove(target)) return false;
-        if(!this.getCell().isEmptyByVertical(target)) return false;
-        if(!this.getCell().isEmptyByHorizontal(target)) return false;
-        if(!this.getCell().isEmptyByDiagonal(target)) return false;
-
-        return true;
+        if(this.getCell().isEmptyByVertical(target)) return true;
+        if(this.getCell().isEmptyByHorizontal(target)) return true;
+        return this.getCell().isEmptyByDiagonal(target);
     }
 }
