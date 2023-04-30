@@ -2,6 +2,7 @@ package gui;
 
 import models.Board;
 import models.Cell;
+import models.Colors;
 import models.figures.Figure;
 
 import javax.swing.*;
@@ -10,6 +11,10 @@ import java.awt.*;
 public class Gui {
 
     Color greenColor = new Color(116, 217, 38);
+    Color focusedCellColor = new Color(100, 40, 90);
+    Color movedFromCellColor = new Color(27, 200, 34);
+    Color movedToCellColor = new Color(16, 240, 50);
+
 
     Board board;
     String assetsFolderPath = "assets/";
@@ -17,13 +22,22 @@ public class Gui {
         NOT_SELECTED,
         SELECTED,
     }
+
     MoveStates moveState = MoveStates.NOT_SELECTED;
+    Colors currentPlayerColor = Colors.WHITE;
+
+    Label labelInstance = new Label();
+
 
     JButton selectedButtonInstance;
     public Gui(Board board){
+        this.initGUI(board);
+    }
+
+    private void initGUI(Board board){
         this.board = board;
         JFrame frame = new JFrame("Chess Board");
-        frame.setSize(600, 600);
+        frame.setSize(8*75, 8*75);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel panel = new JPanel(new GridLayout(8, 8));
@@ -31,6 +45,14 @@ public class Gui {
 
         this.renderButtons(panel);
 
+        JPanel colorPanel = new JPanel();
+        colorPanel.setPreferredSize(new Dimension(50, 50));
+
+        colorPanel.add(this.labelInstance);
+        this.updateLabelText();
+
+
+        frame.add(colorPanel);
         frame.add(panel);
         frame.setVisible(true);
     }
@@ -92,12 +114,14 @@ public class Gui {
     private void actionButtonScript(JButton button, JPanel panel){
         Cell cell = (Cell) button.getClientProperty("cell");
 
-        switch(moveState){
+        switch(this.getMoveState()){
             case NOT_SELECTED:
                 if(cell.isEmpty()) return;
+                if(this.getCurrentPlayerColor() != cell.getFigure().getColor()) return;
 
-                button.setBackground(Color.darkGray);
-                moveState = MoveStates.SELECTED;
+                button.setBackground(this.focusedCellColor);
+
+                this.setMoveState(MoveStates.SELECTED);
                 selectedButtonInstance = button;
 
                 boolean[][] availableMoves = cell.getAvailableMoves();
@@ -123,13 +147,16 @@ public class Gui {
                 Cell selectedCell = (Cell) selectedButtonInstance.getClientProperty("cell");
                 if(selectedCell == cell){
                     this.drawDefaultBackgroundButtonsColor(panel);
-                    moveState = MoveStates.NOT_SELECTED;
+                    this.fillBackgroundForCellsWhereFigureWasMoved(panel, selectedCell, cell);
+                    this.setMoveState(MoveStates.NOT_SELECTED);
                     break;
                 }
                 if(selectedCell.getFigure().canMove(cell)){
-                    moveState = MoveStates.NOT_SELECTED;
+                    this.setMoveState(MoveStates.NOT_SELECTED);
                     selectedCell.moveFigure(cell);
-                    reRenderButtons(panel);
+                    this.runNextGameTick(panel);
+                    cell.getFigure().markAsUpdatedMoveHistoryState();
+                    fillBackgroundForCellsWhereFigureWasMoved(panel, selectedCell, cell);
                 }
 
 
@@ -137,5 +164,61 @@ public class Gui {
             default:
                 System.out.println("ERROR: Undefined case in moveState!!!");
         }
+    }
+
+    public MoveStates getMoveState(){
+        return this.moveState;
+    }
+
+    public void setMoveState(MoveStates moveState){
+        this.moveState = moveState;
+    }
+
+    public Colors getCurrentPlayerColor(){
+        return this.currentPlayerColor;
+    }
+
+    public void setCurrentPlayerColor(Colors currentPlayerColor){
+        this.currentPlayerColor = currentPlayerColor;
+    }
+
+    public void changeCurrentPlayerColor(){
+        Colors oppositeCurrentColor = this.getCurrentPlayerColor() == Colors.BLACK ? Colors.WHITE : Colors.BLACK;
+        this.setCurrentPlayerColor(oppositeCurrentColor);
+        System.out.println("Current player move: " + this.getCurrentPlayerColor().toString());
+    }
+
+    public void updateLabelText(){
+        String currentPlayerColor = this.getCurrentPlayerColor().toString();
+        this.labelInstance.setText("Current player move: " + currentPlayerColor);
+    }
+
+    public void runNextGameTick(JPanel panel){
+        this.reRenderButtons(panel);
+        this.changeCurrentPlayerColor();
+        this.updateLabelText();
+        for (Component component : panel.getComponents()) {
+            if (component instanceof JButton) {
+                JButton button = (JButton) component;
+                Cell cell = (Cell) button.getClientProperty("cell");
+                if(cell.isEmpty()) continue;
+
+                Figure cellFigure = cell.getFigure();
+                cellFigure.changeReceivedMoveHistoryState();
+                if(cellFigure.isMovedFromStart() && cellFigure.isMovedPreviousRound()){
+                    cellFigure.changeMovedState();
+
+                }
+            }
+        }
+        this.board.getMoves();
+    }
+
+    public void fillBackgroundForCellsWhereFigureWasMoved(JPanel panel,Cell cellFrom, Cell cellTo){
+        Component buttonFrom = panel.getComponent(cellFrom.getY()*8 + cellFrom.getX());
+        buttonFrom.setBackground(movedFromCellColor);
+
+        Component buttonTo = panel.getComponent(cellTo.getY()*8 + cellTo.getX());
+        buttonTo.setBackground(movedToCellColor);
     }
 }
