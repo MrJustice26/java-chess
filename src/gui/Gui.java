@@ -107,7 +107,12 @@ public class Gui {
                             Component component = panel.getComponent(y * 8 + x);
                             if (component instanceof JButton) {
                                 JButton iteratedButton = (JButton) component;
-                                iteratedButton.setBackground(this.greenColor);
+                                Cell iteratedCell = (Cell) iteratedButton.getClientProperty("cell");
+                                if(iteratedCell.isEmpty()){
+                                    iteratedButton.setBackground(this.greenColor);
+                                } else {
+                                    iteratedButton.setBackground(Color.red);
+                                }
                                 iteratedButton.setBorderPainted(true);
                             }
                         }
@@ -123,7 +128,6 @@ public class Gui {
                 }
                 if(selectedCell.getFigure().canMove(cell)){
                     moveState = MoveStates.NOT_SELECTED;
-                    selectedButtonInstance.setBackground(Color.black);
                     selectedCell.moveFigure(cell);
                     reRenderButtons(panel);
                 }
