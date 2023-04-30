@@ -17,13 +17,9 @@ public class Rook extends Figure {
             return false;
         }
         Cell cell = this.getCell();
-        if(!cell.isEmptyByVertical(target)){
-            return false;
+        if(cell.isEmptyByVertical(target)){
+            return true;
         }
-        if(cell.isEmptyByHorizontal(target)){
-            return false;
-        }
-
-        return true;
+        return cell.isEmptyByHorizontal(target);
     }
 }
