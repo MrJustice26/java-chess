@@ -82,13 +82,16 @@ public class Cell {
     }
 
     public void moveFigure(Cell target){
-        Figure figure = this.figure;
-        String historyRecord = String.format("%s %s: [%d, %d] -> [%d, %d]", figure.getColor(), figure.getName(), this.getY(), this.getX(), target.getY(), target.getX());
-        this.board.addRecentMove(historyRecord);
-        target.setFigure(this.figure);
-        this.getFigure().changeMovedState();
-        this.getFigure().setCell(target);
-        this.getFigure().setIsMoved(true);
+        this.board.updateRecentMoveRecord(this, target);
+
+        Figure figure = this.getFigure();
+
+        target.setFigure(figure);
+
+        figure.changeMovedState();
+        figure.setCell(target);
+        figure.setIsMoved(true);
+
         this.setFigure(null);
     }
 
