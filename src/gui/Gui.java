@@ -10,10 +10,12 @@ import java.awt.*;
 
 public class Gui {
 
+    // TODO Refactor it later
     Color greenColor = new Color(116, 217, 38);
-    Color focusedCellColor = new Color(100, 40, 90);
-    Color movedFromCellColor = new Color(27, 200, 34);
-    Color movedToCellColor = new Color(16, 240, 50);
+    Color focusedCellColor = new Color(110, 229, 220);
+    Color movedFromCellColor = new Color(155, 24, 112);
+    Color movedToCellColor = new Color(213, 59, 159);
+
 
 
     Board board;
@@ -43,16 +45,9 @@ public class Gui {
         JPanel panel = new JPanel(new GridLayout(8, 8));
         panel.setBackground(Color.white);
 
+
         this.renderButtons(panel);
 
-        JPanel colorPanel = new JPanel();
-        colorPanel.setPreferredSize(new Dimension(50, 50));
-
-        colorPanel.add(this.labelInstance);
-        this.updateLabelText();
-
-
-        frame.add(colorPanel);
         frame.add(panel);
         frame.setVisible(true);
     }
@@ -145,18 +140,21 @@ public class Gui {
                 break;
             case SELECTED:
                 Cell selectedCell = (Cell) selectedButtonInstance.getClientProperty("cell");
+
+                // Case if user clicked itself cell, then unselect.
                 if(selectedCell == cell){
                     this.drawDefaultBackgroundButtonsColor(panel);
-                    this.fillBackgroundForCellsWhereFigureWasMoved(panel, selectedCell, cell);
+                    this.fillBackgroundRecentMoveCells(panel);
                     this.setMoveState(MoveStates.NOT_SELECTED);
                     break;
                 }
+
                 if(selectedCell.getFigure().canMove(cell)){
                     this.setMoveState(MoveStates.NOT_SELECTED);
                     selectedCell.moveFigure(cell);
                     this.runNextGameTick(panel);
                     cell.getFigure().markAsUpdatedMoveHistoryState();
-                    fillBackgroundForCellsWhereFigureWasMoved(panel, selectedCell, cell);
+                    this.fillBackgroundRecentMoveCells(panel);
                 }
 
 
@@ -211,10 +209,16 @@ public class Gui {
                 }
             }
         }
-        this.board.getMoves();
     }
 
-    public void fillBackgroundForCellsWhereFigureWasMoved(JPanel panel,Cell cellFrom, Cell cellTo){
+    public void fillBackgroundRecentMoveCells(JPanel panel){
+
+        Cell[] recentMoveRecord = this.board.getRecentMoveRecord();
+        Cell cellFrom = recentMoveRecord[0];
+        Cell cellTo = recentMoveRecord[1];
+
+        if(cellFrom == null || cellTo == null) return;
+
         Component buttonFrom = panel.getComponent(cellFrom.getY()*8 + cellFrom.getX());
         buttonFrom.setBackground(movedFromCellColor);
 
