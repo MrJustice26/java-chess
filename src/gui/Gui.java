@@ -111,41 +111,34 @@ public class Gui {
 
         switch(this.getMoveState()){
             case NOT_SELECTED:
+
                 if(cell.isEmpty()) return;
                 if(this.getCurrentPlayerColor() != cell.getFigure().getColor()) return;
 
-                button.setBackground(this.focusedCellColor);
+                this.selectPieceAndShowAvailableMoves(button, cell, panel);
 
-                this.setMoveState(MoveStates.SELECTED);
-                selectedButtonInstance = button;
-
-                boolean[][] availableMoves = cell.getAvailableMoves();
-                for(int y = 0; y < 8; y++){
-                    for(int x = 0; x < 8; x++){
-                        if(availableMoves[y][x]){
-                            Component component = panel.getComponent(y * 8 + x);
-                            if (component instanceof JButton) {
-                                JButton iteratedButton = (JButton) component;
-                                Cell iteratedCell = (Cell) iteratedButton.getClientProperty("cell");
-                                if(iteratedCell.isEmpty()){
-                                    iteratedButton.setBackground(this.greenColor);
-                                } else {
-                                    iteratedButton.setBackground(Color.red);
-                                }
-                                iteratedButton.setBorderPainted(true);
-                            }
-                        }
-                    }
-                }
+                this.fillBackgroundRecentMoveCells(panel);
                 break;
+
             case SELECTED:
-                Cell selectedCell = (Cell) selectedButtonInstance.getClientProperty("cell");
+                Cell selectedCell = (Cell) this.selectedButtonInstance.getClientProperty("cell");
 
                 // Case if user clicked itself cell, then unselect.
                 if(selectedCell == cell){
                     this.drawDefaultBackgroundButtonsColor(panel);
                     this.fillBackgroundRecentMoveCells(panel);
                     this.setMoveState(MoveStates.NOT_SELECTED);
+
+                    this.fillBackgroundRecentMoveCells(panel);
+                    break;
+                }
+
+                // Case if user clicked on cell where is standing the piece of the same color (switch selected piece)
+                if(!cell.isEmpty() && cell.getFigure().getColor() == selectedCell.getFigure().getColor()){
+                    this.drawDefaultBackgroundButtonsColor(panel);
+                    this.selectPieceAndShowAvailableMoves(button, cell, panel);
+
+                    this.fillBackgroundRecentMoveCells(panel);
                     break;
                 }
 
@@ -154,11 +147,12 @@ public class Gui {
                     selectedCell.moveFigure(cell);
                     this.runNextGameTick(panel);
                     cell.getFigure().markAsUpdatedMoveHistoryState();
+
                     this.fillBackgroundRecentMoveCells(panel);
+                    break;
                 }
 
 
-                break;
             default:
                 System.out.println("ERROR: Undefined case in moveState!!!");
         }
@@ -189,6 +183,36 @@ public class Gui {
     public void updateLabelText(){
         String currentPlayerColor = this.getCurrentPlayerColor().toString();
         this.labelInstance.setText("Current player move: " + currentPlayerColor);
+    }
+
+    public void paintAvailableCellMoves(JPanel panel, boolean[][] availableMoves){
+        for(int y = 0; y < 8; y++){
+            for(int x = 0; x < 8; x++){
+                if(availableMoves[y][x]){
+                    Component component = panel.getComponent(y * 8 + x);
+                    if (component instanceof JButton) {
+                        JButton iteratedButton = (JButton) component;
+                        Cell iteratedCell = (Cell) iteratedButton.getClientProperty("cell");
+                        if(iteratedCell.isEmpty()){
+                            iteratedButton.setBackground(this.greenColor);
+                        } else {
+                            iteratedButton.setBackground(Color.red);
+                        }
+                        iteratedButton.setBorderPainted(true);
+                    }
+                }
+            }
+        }
+    }
+
+    public void selectPieceAndShowAvailableMoves(JButton button, Cell cell,JPanel panel){
+        button.setBackground(this.focusedCellColor);
+
+        this.setMoveState(MoveStates.SELECTED);
+        this.selectedButtonInstance = button;
+
+        boolean[][] availableMoves = cell.getAvailableMoves();
+        this.paintAvailableCellMoves(panel, availableMoves);
     }
 
     public void runNextGameTick(JPanel panel){
