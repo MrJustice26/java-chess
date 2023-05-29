@@ -57,6 +57,9 @@ public class Pawn extends Figure {
 
         if(absX == 1 && target.isEmpty()) return false;
 
+        if(absY == 2 && !this.getCell().isEmptyByVertical(target) || absY == 2 && !target.isEmpty()) return false;
+
+
         // Black pawn case;
         if(this.getColor() == Colors.BLACK){
             // Case if tries to move to opposite Y direction
@@ -66,7 +69,7 @@ public class Pawn extends Figure {
         // White pawn case
         if(this.getColor() == Colors.WHITE){
             // Case if tries to move to opposite Y direction
-            if(diffY < 0) return false;
+            return diffY >= 0;
         }
 
 

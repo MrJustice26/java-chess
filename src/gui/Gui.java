@@ -4,6 +4,8 @@ import models.Board;
 import models.Cell;
 import models.Colors;
 import models.figures.Figure;
+import models.figures.FigureNames;
+import models.figures.King;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,6 +32,7 @@ public class Gui {
 
     Label labelInstance = new Label();
 
+    JPanel chessPanel;
 
     JButton selectedButtonInstance;
     public Gui(Board board){
@@ -38,18 +41,19 @@ public class Gui {
 
     private void initGUI(Board board){
         this.board = board;
-        JFrame frame = new JFrame("Chess Board");
-        frame.setSize(8*75, 8*75);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JFrame mainFrame = new JFrame("Chess Board");
+        mainFrame.setSize(8*75, 8*75);
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel panel = new JPanel(new GridLayout(8, 8));
         panel.setBackground(Color.white);
 
+        this.chessPanel = panel;
 
         this.renderButtons(panel);
 
-        frame.add(panel);
-        frame.setVisible(true);
+        mainFrame.add(panel);
+        mainFrame.setVisible(true);
     }
 
     private void applyButtonOptions(JButton buttonInstance){
@@ -100,7 +104,7 @@ public class Gui {
             if (component instanceof JButton) {
                 JButton button = (JButton) component;
                 Cell cell = (Cell) button.getClientProperty("cell");
-                Color cellColor = (cell.getX() + cell.getY()) % 2 == 0 ? Color.white : Color.gray;
+                Color cellColor = cell.getColor() == Colors.BLACK ? Color.gray : Color.white;
                 button.setBackground(cellColor);
                 button.setBorderPainted(false);
             }
@@ -115,9 +119,12 @@ public class Gui {
                 if(cell.isEmpty()) return;
                 if(this.getCurrentPlayerColor() != cell.getFigure().getColor()) return;
 
-                this.selectPieceAndShowAvailableMoves(button, cell, panel);
 
                 this.fillBackgroundRecentMoveCells(panel);
+                this.selectPieceAndShowAvailableMoves(button, cell, panel);
+
+                this.paintCheckedKings();
+
                 break;
 
             case SELECTED:
@@ -126,32 +133,40 @@ public class Gui {
                 // Case if user clicked itself cell, then unselect.
                 if(selectedCell == cell){
                     this.drawDefaultBackgroundButtonsColor(panel);
-                    this.fillBackgroundRecentMoveCells(panel);
                     this.setMoveState(MoveStates.NOT_SELECTED);
 
                     this.fillBackgroundRecentMoveCells(panel);
+                    this.paintCheckedKings();
                     break;
                 }
 
                 // Case if user clicked on cell where is standing the piece of the same color (switch selected piece)
                 if(!cell.isEmpty() && cell.getFigure().getColor() == selectedCell.getFigure().getColor()){
                     this.drawDefaultBackgroundButtonsColor(panel);
-                    this.selectPieceAndShowAvailableMoves(button, cell, panel);
 
                     this.fillBackgroundRecentMoveCells(panel);
+                    this.selectPieceAndShowAvailableMoves(button, cell, panel);
+
+                    this.paintCheckedKings();
+
                     break;
                 }
 
-                if(selectedCell.getFigure().canMove(cell)){
-                    this.setMoveState(MoveStates.NOT_SELECTED);
+                if(selectedCell.getFigure().canMove(cell) && selectedCell.isMoveSafe(cell)){
                     selectedCell.moveFigure(cell);
+
+                    this.setMoveState(MoveStates.NOT_SELECTED);
+
                     this.runNextGameTick(panel);
                     cell.getFigure().markAsUpdatedMoveHistoryState();
 
                     this.fillBackgroundRecentMoveCells(panel);
+                    this.paintCheckedKings();
+
                     break;
                 }
 
+                break;
 
             default:
                 System.out.println("ERROR: Undefined case in moveState!!!");
@@ -216,10 +231,22 @@ public class Gui {
     }
 
     public void runNextGameTick(JPanel panel){
+        this.board.checkAndUpdateKingsCheckedStatus();
         this.reRenderButtons(panel);
         this.changeCurrentPlayerColor();
         this.updateLabelText();
-        for (Component component : panel.getComponents()) {
+        this.updatePaintedFiguresHistoryState();
+
+        if(!this.board.canPreventCheckMate(this.currentPlayerColor)){
+            // TODO IMPLEMENT RELAUNCH GAME
+            System.out.printf("PLAYER %s WINS!\n", this.currentPlayerColor == Colors.BLACK ? Colors.WHITE.toString() : Colors.BLACK.toString());
+            System.out.println("CALL RERUN FN");
+
+        }
+    }
+
+    public void updatePaintedFiguresHistoryState(){
+        for (Component component : this.chessPanel.getComponents()) {
             if (component instanceof JButton) {
                 JButton button = (JButton) component;
                 Cell cell = (Cell) button.getClientProperty("cell");
@@ -249,4 +276,23 @@ public class Gui {
         Component buttonTo = panel.getComponent(cellTo.getY()*8 + cellTo.getX());
         buttonTo.setBackground(movedToCellColor);
     }
+
+    public void paintCheckedKings(){
+        for (Component component : this.chessPanel.getComponents()) {
+            if (component instanceof JButton) {
+                JButton button = (JButton) component;
+                Cell cell = (Cell) button.getClientProperty("cell");
+                if(cell.isEmpty()) continue;
+
+                Figure cellFigure = cell.getFigure();
+                if(cellFigure.getName() != FigureNames.KING) continue;
+
+                King kingFigure = (King) cellFigure;
+                if(kingFigure.getCheckedStatus()){
+                    button.setBackground(Color.red);
+                }
+            }
+        }
+    }
+
 }

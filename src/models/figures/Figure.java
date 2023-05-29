@@ -3,7 +3,7 @@ import models.Cell;
 import models.Colors;
 
 public class Figure {
-    private Colors color;
+    private final Colors color;
     private Cell cell;
     private FigureNames name;
 
@@ -63,10 +63,8 @@ public class Figure {
         if(target.isEmpty()){
             return true;
         }
-        if(target.getFigure().getColor() == this.getColor()) {
-            return false;
-        }
-        return (target.getFigure().getName() != FigureNames.KING);
+
+        return target.getFigure().getColor() != this.getColor();
     }
 
     public boolean getHasMoved(){ return this.hasMoved;}

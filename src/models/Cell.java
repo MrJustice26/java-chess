@@ -5,18 +5,23 @@ import models.figures.Figure;
 public class Cell {
     private final int x;
     private final int y;
-    private final Colors color;
 
     private Figure figure;
     private final Board board;
+
+    private final Colors color;
 
 
     public Cell(Board board, int x, int y, Colors color, Figure figure){
         this.board = board;
         this.x = x;
         this.y = y;
-        this.color = color;
         this.figure = figure;
+        this.color = color;
+    }
+
+    public Colors getColor(){
+        return this.color;
     }
 
     public int getX(){ return this.x; }
@@ -95,6 +100,23 @@ public class Cell {
         this.setFigure(null);
     }
 
+    public boolean isMoveSafe(Cell target){
+
+        Figure figure = this.figure;
+        Figure targetFigure = target.getFigure();
+        target.setFigure(figure);
+        figure.setCell(target);
+        this.setFigure(null);
+
+        boolean isSafe = !this.board.isKingChecked(figure.getColor());
+
+        figure.setCell(this);
+        this.setFigure(figure);
+        target.setFigure(targetFigure);
+
+        return isSafe;
+    }
+
     public Cell getRelativeLeftCellByX(){
         return this.board.getCell(this.x - 1, this.y);
     }
@@ -111,12 +133,23 @@ public class Cell {
         }
         for(int y = 0; y < 8; y++){
             for(int x = 0; x < 8; x++){
-                if(this.getFigure().canMove(this.board.getCell(x, y))){
+                if(this.getFigure().canMove(this.board.getCell(x, y)) && this.isMoveSafe(this.board.getCell(x,y))){
                     availableMoves[y][x] = true;
                 }
             }
         }
 
         return availableMoves;
+    }
+
+    public boolean hasAtLeasMove(){
+        for(int y = 0; y < 8; y++){
+            for(int x = 0; x < 8; x++){
+                if(this.getFigure().canMove(this.board.getCell(x, y)) && this.isMoveSafe(this.board.getCell(x,y))){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

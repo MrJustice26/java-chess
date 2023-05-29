@@ -4,6 +4,9 @@ import models.Cell;
 import models.Colors;
 
 public class King extends Figure {
+
+    private boolean isChecked = false;
+
     public King(Colors color, Cell cell) {
         super(color, cell);
         this.setFigureName(FigureNames.KING);
@@ -19,9 +22,14 @@ public class King extends Figure {
         int absX = Math.abs(cell.getX() - target.getX());
         int absY = Math.abs(cell.getY() - target.getY());
 
-        if(absX > 1 || absY > 1) return false;
+        return absX <= 1 && absY <= 1;
+    }
 
-        // TODO dodac roszade
-        return true;
+    public boolean getCheckedStatus(){
+        return this.isChecked;
+    }
+
+    public void setCheckedStatus(boolean checkedStatus){
+        this.isChecked = checkedStatus;
     }
 }

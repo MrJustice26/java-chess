@@ -1,14 +1,27 @@
 package models;
 
-import models.figures.King;
-import models.figures.Queen;
-import models.figures.Bishop;
-import models.figures.Horse;
-import models.figures.Rook;
-import models.figures.Pawn;
+import models.figures.*;
 
 public class Board {
     Cell[][] cells = new Cell[8][8];
+
+    King whiteKingRef;
+    King blackKingRef;
+
+    Figure[][] figuresMakingCheckForKings = new Figure[2][16];
+
+    Cell[] recentMove = new Cell[2];
+
+    private boolean isGameOver = false;
+
+    public Board(){
+        this.initTable();
+    }
+
+    public void initTable(){
+        this.initCells();
+        this.addFigures();
+    }
 
     public void initCells(){
         for(int i = 0; i < 8; i++){
@@ -21,8 +34,6 @@ public class Board {
         }
 
     }
-
-    Cell[] recentMove = new Cell[2];
 
     public Cell getCell(int x, int y){
         if(x >= 8 || y >= 8 || x < 0 || y < 0){
@@ -42,8 +53,8 @@ public class Board {
     }
 
     private void addKings(){
-        new King(Colors.BLACK, this.getCell(4,0));
-        new King(Colors.WHITE, this.getCell(4, 7));
+        this.blackKingRef = new King(Colors.BLACK, this.getCell(4,0));
+        this.whiteKingRef = new King(Colors.WHITE, this.getCell(4, 7));
     }
 
     private void addQueens() {
@@ -91,4 +102,97 @@ public class Board {
     public Cell[] getRecentMoveRecord(){
         return this.recentMove;
     }
+
+    public boolean isKingChecked(Colors kingColor){
+        Cell kingCheckCandidateCell = kingColor == Colors.WHITE ? this.whiteKingRef.getCell() : this.blackKingRef.getCell();
+
+        for(int y = 0; y < 8; y++){
+            for(int x = 0; x < 8; x++){
+
+                Cell receivedCellFromBoard = this.getCell(x, y);
+                if(receivedCellFromBoard.isEmpty()) continue;
+
+                if(receivedCellFromBoard.getFigure().getColor() == kingColor) continue;
+
+                if(receivedCellFromBoard.getFigure().canMove(kingCheckCandidateCell)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void checkAndUpdateKingsCheckedStatus(){
+
+        boolean isBlackKingChecked = this.isKingChecked(Colors.BLACK);
+        if(isBlackKingChecked){
+            this.findCheckingFigures(Colors.BLACK);
+        }
+        if(isBlackKingChecked && this.blackKingRef.getCheckedStatus()){
+            System.out.println("Player WHITE won!");
+            this.setGameOverStatus(true);
+        }
+        this.blackKingRef.setCheckedStatus(isBlackKingChecked);
+
+        boolean isWhiteKingChecked = this.isKingChecked(Colors.WHITE);
+        if(isWhiteKingChecked){
+            this.findCheckingFigures(Colors.WHITE);
+        }
+        if(isWhiteKingChecked && this.whiteKingRef.getCheckedStatus()){
+            System.out.println("Player BLACK won!");
+            this.setGameOverStatus(true);
+        }
+        this.whiteKingRef.setCheckedStatus(isWhiteKingChecked);
+
+    }
+
+    public void findCheckingFigures(Colors kingColor){
+        Cell kingCheckCandidateCell = kingColor == Colors.WHITE ? this.whiteKingRef.getCell() : this.blackKingRef.getCell();
+
+        int figuresMakingCheckForKingsRow = kingColor == Colors.WHITE ? 0 : 1;
+
+        int checkingFiguresCounter = 0;
+        for(int y = 0; y < 8; y++){
+            for(int x = 0; x < 8; x++){
+
+                Cell receivedCellFromBoard = this.getCell(x, y);
+                if(receivedCellFromBoard.isEmpty()) continue;
+
+                if(receivedCellFromBoard.getFigure().getColor() == kingColor) continue;
+
+                if(receivedCellFromBoard.getFigure().canMove(kingCheckCandidateCell)){
+                    this.figuresMakingCheckForKings[figuresMakingCheckForKingsRow][checkingFiguresCounter] = receivedCellFromBoard.getFigure();
+                    checkingFiguresCounter++;
+                }
+            }
+        }
+    }
+
+
+    public boolean getGameOverStatus(){
+        return this.isGameOver;
+    }
+
+    public void setGameOverStatus(boolean bool){
+        this.isGameOver = bool;
+    }
+
+    public boolean canPreventCheckMate(Colors chessColor){
+        for(int y = 0; y < 8; y++){
+            for(int x = 0; x < 8; x++){
+
+                Cell receivedCellFromBoard = this.getCell(x, y);
+                if(receivedCellFromBoard.isEmpty()) continue;
+
+                if(receivedCellFromBoard.getFigure().getColor() != chessColor) continue;
+
+                Figure alliedFigure = receivedCellFromBoard.getFigure();
+                if(alliedFigure.getCell().hasAtLeasMove()) return true;
+            }
+        }
+        return false;
+    }
+
+
+
 }
