@@ -16,10 +16,7 @@ Java Chess is a simple chess game implemented in Java using the AWT library for 
 - AWT library (included in the JDK)
 
 <h2>Usage</h2>
-1. Clone the repository: 
-```bash 
-   git clone https://github.com/your-username/java-chess.git 
-```
+1. Clone the repository: ```git clone https://github.com/your-username/java-chess.git```
 2. Compile the Java source files.
 3. Play the game using the graphical user interface (GUI) that appears on your screen.
 
