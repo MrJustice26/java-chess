@@ -8,6 +8,9 @@ import models.figures.FigureNames;
 import models.figures.King;
 
 import javax.swing.*;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 
 public class Gui {
@@ -30,9 +33,16 @@ public class Gui {
     MoveStates moveState = MoveStates.NOT_SELECTED;
     Colors currentPlayerColor = Colors.WHITE;
 
-    Label labelInstance = new Label();
-
     JPanel chessPanel;
+    JTextPane currentPlayerTextPane;
+
+    JTextPane estimatedTimeTextPane;
+
+    // WHITE, BLACK;
+    int[] playerTimeAmount = {90, 90};
+    HistoryPane historyTextPane;
+
+    Timer timerInstance;
 
     JButton selectedButtonInstance;
     public Gui(Board board){
@@ -42,18 +52,64 @@ public class Gui {
     private void initGUI(Board board){
         this.board = board;
         JFrame mainFrame = new JFrame("Chess Board");
-        mainFrame.setSize(8*75, 8*75);
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JPanel panel = new JPanel(new GridLayout(8, 8));
-        panel.setBackground(Color.white);
 
-        this.chessPanel = panel;
+        JPanel chessPanel = new JPanel(new GridLayout(8, 8));
+        chessPanel.setPreferredSize(new Dimension(8 * 75, 8 * 75));
+        chessPanel.setBackground(Color.white);
 
-        this.renderButtons(panel);
 
-        mainFrame.add(panel);
+        JPanel additionalPanel = new JPanel();
+        additionalPanel.setPreferredSize(new Dimension(240, 8 * 75));
+        additionalPanel.setBackground(Color.lightGray);
+
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.add(chessPanel, BorderLayout.WEST);
+        contentPanel.add(additionalPanel, BorderLayout.CENTER);
+
+        JTextPane currentPlayerTextPane = new JTextPane();
+        currentPlayerTextPane.setPreferredSize(new Dimension(240, 30));
+        currentPlayerTextPane.setEditable(false);
+        currentPlayerTextPane.setBackground(Color.lightGray);
+        currentPlayerTextPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,5));
+
+        StyledDocument document = currentPlayerTextPane.getStyledDocument();
+        SimpleAttributeSet style = new SimpleAttributeSet();
+        StyleConstants.setAlignment(style, StyleConstants.ALIGN_LEFT);
+        document.setParagraphAttributes(0, document.getLength(), style, false);
+
+        this.currentPlayerTextPane = currentPlayerTextPane;
+        this.currentPlayerTextPane.setText("Current player move: WHITE");
+
+        this.historyTextPane = new HistoryPane();
+
+        JTextPane estimatedTimeTextPane = new JTextPane();
+        estimatedTimeTextPane.setPreferredSize(new Dimension(240, 100));
+        estimatedTimeTextPane.setEditable(false);
+        estimatedTimeTextPane.setBackground(Color.lightGray);
+        estimatedTimeTextPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,5));
+
+        this.estimatedTimeTextPane = estimatedTimeTextPane;
+        this.printEstimatedTime();
+
+        this.timerInstance = new Timer(1000, e -> this.timerAction());
+        this.timerInstance.start();
+
+        additionalPanel.add(currentPlayerTextPane);
+        additionalPanel.add(this.historyTextPane.getHistoryTextPaneInstance());
+        additionalPanel.add(this.estimatedTimeTextPane);
+
+        this.renderButtons(chessPanel);
+        mainFrame.add(contentPanel);
         mainFrame.setVisible(true);
+
+        mainFrame.pack();
+        mainFrame.setLocationRelativeTo(null);
+
+        this.chessPanel = chessPanel;
+
+
     }
 
     private void applyButtonOptions(JButton buttonInstance){
@@ -192,12 +248,11 @@ public class Gui {
     public void changeCurrentPlayerColor(){
         Colors oppositeCurrentColor = this.getCurrentPlayerColor() == Colors.BLACK ? Colors.WHITE : Colors.BLACK;
         this.setCurrentPlayerColor(oppositeCurrentColor);
-        System.out.println("Current player move: " + this.getCurrentPlayerColor().toString());
     }
 
-    public void updateLabelText(){
+    public void updateTextPane(){
         String currentPlayerColor = this.getCurrentPlayerColor().toString();
-        this.labelInstance.setText("Current player move: " + currentPlayerColor);
+        this.currentPlayerTextPane.setText("Current player move: " + currentPlayerColor);
     }
 
     public void paintAvailableCellMoves(JPanel panel, boolean[][] availableMoves){
@@ -234,8 +289,9 @@ public class Gui {
         this.board.checkAndUpdateKingsCheckedStatus();
         this.reRenderButtons(panel);
         this.changeCurrentPlayerColor();
-        this.updateLabelText();
+        this.updateTextPane();
         this.updatePaintedFiguresHistoryState();
+        this.historyTextPane.printHistory(this.board);
 
         if(!this.board.canPreventCheckMate(this.currentPlayerColor)){
             // TODO IMPLEMENT RELAUNCH GAME
@@ -294,5 +350,28 @@ public class Gui {
             }
         }
     }
+
+    public void timerAction(){
+        int estimatedTimeTextPaneIdx = this.currentPlayerColor == Colors.WHITE ? 0 : 1;
+        if(this.playerTimeAmount[estimatedTimeTextPaneIdx] == 0){
+            // TODO IMPLEMENT RELAUNCH GAME
+            System.out.printf("Time is up. PLAYER %s WINS!\n", this.currentPlayerColor == Colors.BLACK ? Colors.WHITE.toString() : Colors.BLACK.toString());
+            System.out.println("CALL RERUN FN");
+            this.timerInstance.stop();
+            return;
+
+        }
+        this.playerTimeAmount[estimatedTimeTextPaneIdx] = this.playerTimeAmount[estimatedTimeTextPaneIdx] - 1;
+
+        this.printEstimatedTime();
+    }
+
+    public void printEstimatedTime(){
+        String whitePlayerText = String.format("White player: %d seconds\n", this.playerTimeAmount[0]);
+        String blackPlayerText = String.format("Black player: %d seconds", this.playerTimeAmount[1]);
+        this.estimatedTimeTextPane.setText(whitePlayerText.concat(blackPlayerText));
+    }
+
+
 
 }

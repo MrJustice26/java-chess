@@ -12,7 +12,8 @@ public class Board {
 
     Cell[] recentMove = new Cell[2];
 
-    private boolean isGameOver = false;
+    String[] doneMoves = new String[1000];
+    int doneMovesIdx = 0;
 
     public Board(){
         this.initTable();
@@ -95,6 +96,15 @@ public class Board {
             System.out.println("ERROR: From cell or target cell is/are null in updateRecentMoveRecord!");
             return;
         }
+
+        int startChar = 65;
+        int fromRow = 8 - from.getY();
+        char fromCol = (char) Character.toLowerCase(startChar + from.getX());
+
+        int toRow = 8 - target.getY();
+        char toCol = (char) Character.toLowerCase(startChar + target.getX());
+        this.doneMoves[this.doneMovesIdx++] = String.format("%s%s%s%s", fromRow, fromCol, toRow, toCol);
+
         this.recentMove[0] = from;
         this.recentMove[1] = target;
     }
@@ -128,20 +138,20 @@ public class Board {
         if(isBlackKingChecked){
             this.findCheckingFigures(Colors.BLACK);
         }
-        if(isBlackKingChecked && this.blackKingRef.getCheckedStatus()){
-            System.out.println("Player WHITE won!");
-            this.setGameOverStatus(true);
-        }
+//        if(isBlackKingChecked && this.blackKingRef.getCheckedStatus()){
+//            System.out.println("Player WHITE won!");
+//            this.setGameOverStatus(true);
+//        }
         this.blackKingRef.setCheckedStatus(isBlackKingChecked);
 
         boolean isWhiteKingChecked = this.isKingChecked(Colors.WHITE);
         if(isWhiteKingChecked){
             this.findCheckingFigures(Colors.WHITE);
         }
-        if(isWhiteKingChecked && this.whiteKingRef.getCheckedStatus()){
-            System.out.println("Player BLACK won!");
-            this.setGameOverStatus(true);
-        }
+//        if(isWhiteKingChecked && this.whiteKingRef.getCheckedStatus()){
+//            System.out.println("Player BLACK won!");
+//            this.setGameOverStatus(true);
+//        }
         this.whiteKingRef.setCheckedStatus(isWhiteKingChecked);
 
     }
@@ -168,14 +178,9 @@ public class Board {
         }
     }
 
-
-    public boolean getGameOverStatus(){
-        return this.isGameOver;
-    }
-
-    public void setGameOverStatus(boolean bool){
-        this.isGameOver = bool;
-    }
+//    public void setGameOverStatus(boolean bool){
+//
+//    }
 
     public boolean canPreventCheckMate(Colors chessColor){
         for(int y = 0; y < 8; y++){
@@ -191,6 +196,10 @@ public class Board {
             }
         }
         return false;
+    }
+
+    public String[] getDoneMoves(){
+        return this.doneMoves;
     }
 
 
