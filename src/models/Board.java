@@ -138,20 +138,12 @@ public class Board {
         if(isBlackKingChecked){
             this.findCheckingFigures(Colors.BLACK);
         }
-//        if(isBlackKingChecked && this.blackKingRef.getCheckedStatus()){
-//            System.out.println("Player WHITE won!");
-//            this.setGameOverStatus(true);
-//        }
         this.blackKingRef.setCheckedStatus(isBlackKingChecked);
 
         boolean isWhiteKingChecked = this.isKingChecked(Colors.WHITE);
         if(isWhiteKingChecked){
             this.findCheckingFigures(Colors.WHITE);
         }
-//        if(isWhiteKingChecked && this.whiteKingRef.getCheckedStatus()){
-//            System.out.println("Player BLACK won!");
-//            this.setGameOverStatus(true);
-//        }
         this.whiteKingRef.setCheckedStatus(isWhiteKingChecked);
 
     }
@@ -178,10 +170,6 @@ public class Board {
         }
     }
 
-//    public void setGameOverStatus(boolean bool){
-//
-//    }
-
     public boolean canPreventCheckMate(Colors chessColor){
         for(int y = 0; y < 8; y++){
             for(int x = 0; x < 8; x++){
@@ -200,6 +188,25 @@ public class Board {
 
     public String[] getDoneMoves(){
         return this.doneMoves;
+    }
+
+    public void checkIfPawnShouldBeChanged(){
+        int firstRow = 0;
+        int lastRow = 7;
+        for(int x = 0; x < 8; x++){
+
+            Cell firstRowIteratedCell = this.getCell(x, firstRow);
+            Cell lastRowIteratedCell = this.getCell(x, lastRow);
+
+            if(!firstRowIteratedCell.isEmpty() && firstRowIteratedCell.getFigure().getName() == FigureNames.PAWN){
+                firstRowIteratedCell.setFigure(new Queen(firstRowIteratedCell.getFigure().getColor(), firstRowIteratedCell));
+            }
+
+            if(!lastRowIteratedCell.isEmpty() && lastRowIteratedCell.getFigure().getName() == FigureNames.PAWN){
+                lastRowIteratedCell.setFigure(new Queen(lastRowIteratedCell.getFigure().getColor(), lastRowIteratedCell));
+            }
+
+        }
     }
 
 

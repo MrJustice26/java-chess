@@ -286,6 +286,7 @@ public class Gui {
     }
 
     public void runNextGameTick(JPanel panel){
+        this.board.checkIfPawnShouldBeChanged();
         this.board.checkAndUpdateKingsCheckedStatus();
         this.reRenderButtons(panel);
         this.changeCurrentPlayerColor();
@@ -309,7 +310,7 @@ public class Gui {
                 if(cell.isEmpty()) continue;
 
                 Figure cellFigure = cell.getFigure();
-                cellFigure.changeReceivedMoveHistoryState();
+                cellFigure.updateLastPerformedMoveAge();
                 if(cellFigure.isMovedFromStart() && cellFigure.isMovedPreviousRound()){
                     cellFigure.changeMovedState();
 

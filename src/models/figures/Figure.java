@@ -12,21 +12,9 @@ public class Figure {
     // TODO Remove it and use MovedStates
     private boolean hasMoved;
 
-    enum MovedStates {
-        NOT_MOVED,
-        MOVED_FROM_START,
-        MOVED_FROM_NOT_START
-    }
-
-    enum ReceivedMoveHistoryStates {
-        THIS_ROUND,
-        PREVIOUS_ROUND,
-        OLDER_THAN_PREVIOUS_ROUND
-    }
-
     MovedStates movedState = MovedStates.NOT_MOVED;
 
-    ReceivedMoveHistoryStates receivedMoveHistoryState = ReceivedMoveHistoryStates.THIS_ROUND;
+    PerformedMoveAge receivedMoveHistoryState = PerformedMoveAge.THIS_ROUND;
 
     public Figure(Colors color, Cell cell){
         this.color = color;
@@ -88,16 +76,19 @@ public class Figure {
             case MOVED_FROM_START:
                 this.setMovedState(MovedStates.MOVED_FROM_NOT_START);
                 break;
+
+            default:
+                break;
         }
     }
 
-    public void changeReceivedMoveHistoryState(){
+    public void updateLastPerformedMoveAge(){
         switch(this.receivedMoveHistoryState){
             case THIS_ROUND:
-                this.receivedMoveHistoryState = ReceivedMoveHistoryStates.PREVIOUS_ROUND;
+                this.receivedMoveHistoryState = PerformedMoveAge.PREVIOUS_ROUND;
                 break;
             case PREVIOUS_ROUND:
-                this.receivedMoveHistoryState = ReceivedMoveHistoryStates.OLDER_THAN_PREVIOUS_ROUND;
+                this.receivedMoveHistoryState = PerformedMoveAge.OLDER_THAN_PREVIOUS_ROUND;
                 break;
             case OLDER_THAN_PREVIOUS_ROUND:
                 break;
@@ -109,11 +100,11 @@ public class Figure {
     }
 
     public void markAsUpdatedMoveHistoryState(){
-        this.receivedMoveHistoryState = ReceivedMoveHistoryStates.THIS_ROUND;
+        this.receivedMoveHistoryState = PerformedMoveAge.THIS_ROUND;
     }
 
     public boolean isMovedPreviousRound(){
-        return this.receivedMoveHistoryState == ReceivedMoveHistoryStates.PREVIOUS_ROUND;
+        return this.receivedMoveHistoryState == PerformedMoveAge.PREVIOUS_ROUND;
     }
 
     public boolean isMovedFromStart(){
