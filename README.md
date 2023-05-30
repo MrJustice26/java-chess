@@ -1,7 +1,7 @@
-<h1>Java chess</h1>
+# Java chess
 Java Chess is a simple chess game implemented in Java using the AWT library for the graphical user interface (GUI). It follows object-oriented programming (OOP) principles to define models and simulate the game of chess.
 
-<h2>Features</h2>
+## Features
 - Graphical user interface (GUI) created with AWT library
 - Traditional chess rules and gameplay (**in progress**)
 - Player vs. player mode
@@ -11,16 +11,16 @@ Java Chess is a simple chess game implemented in Java using the AWT library for 
 - Save and load game functionality (**in progress**)
 - Player vs. computer mode (**in progress**)
 
-<h2>Requirements</h2>
+## Requirements
 - Java Development Kit (JDK) 8 or higher
 - AWT library (included in the JDK)
 
-<h2>Usage</h2>
+## Usage
 1. Clone the repository.
 2. Compile the Java source files.
 3. Play the game using the graphical user interface (GUI) that appears on your screen.
 
-<h2>How to Play</h2>
+## How to Play
 1. The game starts with the white player's turn. Click on a chess piece to select it.
 2. The selected piece will be highlighted, indicating the legal moves.
 3. Click on a highlighted square to move the selected piece to that square.
