@@ -3,9 +3,7 @@ package gui;
 import models.Board;
 import models.Cell;
 import models.Colors;
-import models.figures.Figure;
-import models.figures.FigureNames;
-import models.figures.King;
+import models.figures.*;
 
 import javax.swing.*;
 import javax.swing.text.SimpleAttributeSet;
@@ -32,19 +30,28 @@ public class Gui {
 
     MoveStates moveState = MoveStates.NOT_SELECTED;
     Colors currentPlayerColor = Colors.WHITE;
+    Colors oppositePlayerColor = Colors.BLACK;
 
     JPanel chessPanel;
     JTextPane currentPlayerTextPane;
 
     JTextPane estimatedTimeTextPane;
 
+    int TIME_AMOUNT = 90;
+
+    int PERFORMED_MOVE_BONUS = 4;
+
     // WHITE, BLACK;
-    int[] playerTimeAmount = {90, 90};
+    int[] playerTimeAmount = {this.TIME_AMOUNT, this.TIME_AMOUNT};
+
     HistoryPane historyTextPane;
 
     Timer timerInstance;
 
     JButton selectedButtonInstance;
+
+    boolean isGameOver = false;
+
     public Gui(Board board){
         this.initGUI(board);
     }
@@ -53,6 +60,7 @@ public class Gui {
         this.board = board;
         JFrame mainFrame = new JFrame("Chess Board");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 
 
         JPanel chessPanel = new JPanel(new GridLayout(8, 8));
@@ -65,8 +73,8 @@ public class Gui {
         additionalPanel.setBackground(Color.lightGray);
 
         JPanel contentPanel = new JPanel(new BorderLayout());
-        contentPanel.add(chessPanel, BorderLayout.WEST);
-        contentPanel.add(additionalPanel, BorderLayout.CENTER);
+        contentPanel.add(chessPanel, BorderLayout.EAST);
+        contentPanel.add(additionalPanel, BorderLayout.WEST);
 
         JTextPane currentPlayerTextPane = new JTextPane();
         currentPlayerTextPane.setPreferredSize(new Dimension(240, 30));
@@ -108,7 +116,6 @@ public class Gui {
         mainFrame.setLocationRelativeTo(null);
 
         this.chessPanel = chessPanel;
-
 
     }
 
@@ -169,6 +176,8 @@ public class Gui {
     private void actionButtonScript(JButton button, JPanel panel){
         Cell cell = (Cell) button.getClientProperty("cell");
 
+
+
         switch(this.getMoveState()){
             case NOT_SELECTED:
 
@@ -177,9 +186,10 @@ public class Gui {
 
 
                 this.fillBackgroundRecentMoveCells(panel);
+                this.paintCheckedKings();
+
                 this.selectPieceAndShowAvailableMoves(button, cell, panel);
 
-                this.paintCheckedKings();
 
                 break;
 
@@ -196,18 +206,23 @@ public class Gui {
                     break;
                 }
 
+
                 // Case if user clicked on cell where is standing the piece of the same color (switch selected piece)
                 if(!cell.isEmpty() && cell.getFigure().getColor() == selectedCell.getFigure().getColor()){
                     this.drawDefaultBackgroundButtonsColor(panel);
 
                     this.fillBackgroundRecentMoveCells(panel);
-                    this.selectPieceAndShowAvailableMoves(button, cell, panel);
 
                     this.paintCheckedKings();
+                    this.selectPieceAndShowAvailableMoves(button, cell, panel);
 
                     break;
                 }
 
+                if (this.isGameOver) return;
+
+
+                // Check if piece will perform check for his king
                 if(selectedCell.getFigure().canMove(cell) && selectedCell.isMoveSafe(cell)){
                     selectedCell.moveFigure(cell);
 
@@ -241,13 +256,23 @@ public class Gui {
         return this.currentPlayerColor;
     }
 
-    public void setCurrentPlayerColor(Colors currentPlayerColor){
-        this.currentPlayerColor = currentPlayerColor;
+    public void setCurrentPlayerColor(Colors color){
+        this.currentPlayerColor = color;
+    }
+
+    public Colors getOppositePlayerColor() {
+        return this.oppositePlayerColor;
+    }
+
+    public void setOppositePlayerColor(Colors color){
+        this.oppositePlayerColor = color;
     }
 
     public void changeCurrentPlayerColor(){
-        Colors oppositeCurrentColor = this.getCurrentPlayerColor() == Colors.BLACK ? Colors.WHITE : Colors.BLACK;
-        this.setCurrentPlayerColor(oppositeCurrentColor);
+        Colors oppositeColor = this.getOppositePlayerColor();
+        Colors currentColor = this.getCurrentPlayerColor();
+        this.setOppositePlayerColor(currentColor);
+        this.setCurrentPlayerColor(oppositeColor);
     }
 
     public void updateTextPane(){
@@ -286,19 +311,17 @@ public class Gui {
     }
 
     public void runNextGameTick(JPanel panel){
-        this.board.checkIfPawnShouldBeChanged();
+        this.performPawnChangeFigure();
         this.board.checkAndUpdateKingsCheckedStatus();
         this.reRenderButtons(panel);
+        this.giveAdditionalSeconds(this.currentPlayerColor);
         this.changeCurrentPlayerColor();
         this.updateTextPane();
         this.updatePaintedFiguresHistoryState();
         this.historyTextPane.printHistory(this.board);
 
         if(!this.board.canPreventCheckMate(this.currentPlayerColor)){
-            // TODO IMPLEMENT RELAUNCH GAME
-            System.out.printf("PLAYER %s WINS!\n", this.currentPlayerColor == Colors.BLACK ? Colors.WHITE.toString() : Colors.BLACK.toString());
-            System.out.println("CALL RERUN FN");
-
+            this.setGameOver();
         }
     }
 
@@ -355,10 +378,7 @@ public class Gui {
     public void timerAction(){
         int estimatedTimeTextPaneIdx = this.currentPlayerColor == Colors.WHITE ? 0 : 1;
         if(this.playerTimeAmount[estimatedTimeTextPaneIdx] == 0){
-            // TODO IMPLEMENT RELAUNCH GAME
-            System.out.printf("Time is up. PLAYER %s WINS!\n", this.currentPlayerColor == Colors.BLACK ? Colors.WHITE.toString() : Colors.BLACK.toString());
-            System.out.println("CALL RERUN FN");
-            this.timerInstance.stop();
+            this.setGameOver();
             return;
 
         }
@@ -373,6 +393,112 @@ public class Gui {
         this.estimatedTimeTextPane.setText(whitePlayerText.concat(blackPlayerText));
     }
 
+
+    public void resetTimer(){
+        this.playerTimeAmount[0] = this.TIME_AMOUNT;
+        this.playerTimeAmount[1] = this.TIME_AMOUNT;
+        this.timerInstance.start();
+    }
+
+    public void setGameOver(){
+        this.isGameOver = true;
+        this.timerInstance.stop();
+
+        this.showResultDialog();
+    }
+
+    public void rerunGame(){
+        this.board.resetBoard();
+        this.historyTextPane.printHistory(this.board);
+        this.reRenderButtons(this.chessPanel);
+        this.setCurrentPlayerColor(Colors.WHITE);
+        this.resetTimer();
+        this.isGameOver = false;
+    }
+
+    public void performPawnChangeFigure(){
+        Cell cellInWhichFigureShouldBeChanged = this.board.checkIfPawnShouldBeChanged();
+        if(cellInWhichFigureShouldBeChanged == null){
+            return;
+        }
+
+        if(cellInWhichFigureShouldBeChanged.isEmpty()){
+            return;
+        }
+
+        int selectedFigure = this.showChoosePawnDialog();
+
+        Colors figureColor = cellInWhichFigureShouldBeChanged.getFigure().getColor();
+
+
+        switch(selectedFigure){
+            case 1:
+                cellInWhichFigureShouldBeChanged.setFigure(new Queen(figureColor, cellInWhichFigureShouldBeChanged));
+                break;
+
+            case 2:
+                cellInWhichFigureShouldBeChanged.setFigure(new Bishop(figureColor, cellInWhichFigureShouldBeChanged));
+                break;
+
+            case 3:
+                cellInWhichFigureShouldBeChanged.setFigure(new Horse(figureColor, cellInWhichFigureShouldBeChanged));
+                break;
+
+            case 4:
+                cellInWhichFigureShouldBeChanged.setFigure(new Rook(figureColor, cellInWhichFigureShouldBeChanged));
+                break;
+        }
+
+
+    }
+
+    public void showResultDialog(){
+        Object[] options = {"Tak", "Nie"};
+
+        String winner = this.getOppositePlayerColor().toString();
+        int answer = JOptionPane.showOptionDialog(null,
+                String.format("Player %s wins!\nDo you want to rerun the game?", winner),
+                "Potwierdzenie",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        if(answer == 0) {
+            this.rerunGame();
+        }
+    }
+
+    public int showChoosePawnDialog(){
+        int selectedCorrectFigure;
+         while(true){
+            String selectedFigureStr = JOptionPane.showInputDialog(null, "Choose the chess piece:\n1 - Queen\n2 - Bishop\n3 - Horse\n4 - Rook");
+             try {
+                 if(selectedFigureStr == null){
+                     continue;
+                 }
+                 int selectedFigure = Integer.parseInt(selectedFigureStr);
+
+                 if(selectedFigure > 0 && selectedFigure <= 4){
+                     selectedCorrectFigure = selectedFigure;
+                     break;
+                 }
+             }  catch (NumberFormatException e){
+                 System.out.println("Catch error at NumberFormatException " + e);
+             }
+
+         }
+         return selectedCorrectFigure;
+    }
+
+    // GameManager
+    public void giveAdditionalSeconds(Colors playerColorWhichShouldReceiveAdditionalSeconds){
+
+        int playerTimeAmountIdx = playerColorWhichShouldReceiveAdditionalSeconds == Colors.WHITE ? 0 : 1;
+
+        this.playerTimeAmount[playerTimeAmountIdx] += this.PERFORMED_MOVE_BONUS;
+    }
 
 
 }

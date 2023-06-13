@@ -152,4 +152,13 @@ public class Cell {
         }
         return false;
     }
+
+    public String getPositionInChessNotation(){
+        int startChar = 65;
+
+        int rowInChessNotation = 8 - this.getY();
+        char colInChessNotation = (char) Character.toLowerCase(startChar + this.getX());
+
+        return String.format("%s%d", colInChessNotation, rowInChessNotation);
+    }
 }
