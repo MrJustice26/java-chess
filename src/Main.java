@@ -1,9 +1,7 @@
-import gui.Gui;
-import models.Board;
+import game.GameManager;
 
 public class Main {
     public static void main(String[] args) {
-        Board board = new Board();
-        new Gui(board);
+        new GameManager();
     }
 }

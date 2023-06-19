@@ -1,7 +1,5 @@
 package gui;
 
-import models.Board;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -24,9 +22,8 @@ public class HistoryPane {
         return historyTextPaneInstance;
     }
 
-    public void printHistory(Board board){
+    public void printHistory(String[] doneMoves){
         String result = "";
-        String[] doneMoves = board.getDoneMoves();
         for(int doneMoveIdx = 0; doneMoveIdx < doneMoves.length; doneMoveIdx++){
             if(doneMoves[doneMoveIdx] == null) break;
 
