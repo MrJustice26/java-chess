@@ -6,7 +6,6 @@ import models.Cell;
 import models.Colors;
 import models.figures.Figure;
 
-import java.util.Random;
 
 
 public class GameManager {
@@ -76,25 +75,10 @@ public class GameManager {
         }
 
         if(this.IS_ENEMY_ROBOT_ENABLED && cellInWhichFigureShouldBeChanged.getFigure().getColor() == this.enemyRobotColor){
-            Random rand = new Random();
 
-            double generatedNum = rand.nextDouble();
+            int randomlySelectedFigureIdx = this.gameEnemyInstance.selectRandomlyAnIdxOfFigure();
 
-
-            double[] figurePercentages = {0.65, 0.20, 0.10, 0.05};
-            int randomlySelectedFigureIdx = 0;
-            double base = 0.0;
-            while(randomlySelectedFigureIdx < figurePercentages.length){
-                if(generatedNum > figurePercentages[randomlySelectedFigureIdx] + base){
-                    base += figurePercentages[randomlySelectedFigureIdx];
-                    randomlySelectedFigureIdx++;
-                } else {
-                    break;
-                }
-            }
-
-            System.out.println(generatedNum);
-            this.boardInstance.promotePawnFigure(cellInWhichFigureShouldBeChanged, randomlySelectedFigureIdx + 1);
+            this.boardInstance.promotePawnFigure(cellInWhichFigureShouldBeChanged, randomlySelectedFigureIdx);
 
         } else {
             int selectedFigure = this.guiInstance.showChoosePawnDialog();

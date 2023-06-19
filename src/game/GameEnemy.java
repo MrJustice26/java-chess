@@ -52,6 +52,27 @@ public class GameEnemy {
         return availableCells[randomAvailableCellsIdx];
     }
 
+    public int selectRandomlyAnIdxOfFigure(){
+        Random rand = new Random();
+
+        double generatedNum = rand.nextDouble();
+
+
+        double[] figurePercentages = {0.65, 0.20, 0.10, 0.05};
+        int randomlySelectedFigureIdx = 0;
+        double base = 0.0;
+        while(randomlySelectedFigureIdx < figurePercentages.length){
+            if(generatedNum > figurePercentages[randomlySelectedFigureIdx] + base){
+                base += figurePercentages[randomlySelectedFigureIdx];
+                randomlySelectedFigureIdx++;
+            } else {
+                return randomlySelectedFigureIdx + 1;
+            }
+        }
+        System.out.println("Arrived in unreachable zone at selectRandomlyAnIdxOfFigure" + generatedNum);
+        return 1;
+    }
+
     private Cell getTargetCell(Cell fromCell){
         Random rand = new Random();
 

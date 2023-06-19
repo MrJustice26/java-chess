@@ -295,9 +295,7 @@ public class Gui {
                      selectedCorrectFigure = selectedFigure;
                      break;
                  }
-             }  catch (NumberFormatException e){
-                 System.out.println("Catch error at NumberFormatException " + e);
-             }
+             }  catch (NumberFormatException ignored){}
 
          }
          return selectedCorrectFigure;
