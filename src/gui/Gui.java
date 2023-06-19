@@ -127,39 +127,44 @@ public class Gui {
         buttonInstance.setRolloverEnabled(false);
     }
 
-    private void deleteButtons(JPanel panel){
-        for (Component component : panel.getComponents()) {
-            if (component instanceof JButton) {
-                JButton button = (JButton) component;
-                panel.remove(button);
-            }
-        }
-    }
     private void renderButtons(JPanel panel){
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 Cell cell = this.board.getCell(j, i);
                 JButton button = new JButton();
-                if(!cell.isEmpty()){
-                    Figure cellFigure = cell.getFigure();
-                    String pathToFigureImage = this.assetsFolderPath + cellFigure.getImageName();
-                    ImageIcon icon = new ImageIcon(pathToFigureImage);
-                    button.setIcon(icon);
-                }
                 this.applyButtonOptions(button);
                 button.putClientProperty("cell", cell);
                 button.addActionListener(e -> this.actionButtonScript(button, panel));
                 panel.add(button);
             }
         }
+        this.drawButtonsIcon(panel);
         this.drawDefaultBackgroundButtonsColor(panel);
     }
 
     private void reRenderButtons(JPanel panel){
-        this.deleteButtons(panel);
-        this.renderButtons(panel);
+        this.drawButtonsIcon(panel);
+        this.drawDefaultBackgroundButtonsColor(panel);
         panel.revalidate();
         panel.repaint();
+    }
+
+    private void drawButtonsIcon(JPanel panel){
+        for (Component component : panel.getComponents()) {
+            if (component instanceof JButton) {
+                JButton button = (JButton) component;
+                Cell cellData = (Cell) button.getClientProperty("cell");
+                if(cellData.isEmpty()) {
+                    button.setIcon(null);
+                    continue;
+                }
+
+                Figure cellFigure = cellData.getFigure();
+                String pathToFigureImage = this.assetsFolderPath + cellFigure.getImageName();
+                ImageIcon icon = new ImageIcon(pathToFigureImage);
+                button.setIcon(icon);
+            }
+        }
     }
 
     private void drawDefaultBackgroundButtonsColor(JPanel panel){
@@ -428,27 +433,7 @@ public class Gui {
 
         int selectedFigure = this.showChoosePawnDialog();
 
-        Colors figureColor = cellInWhichFigureShouldBeChanged.getFigure().getColor();
-
-
-        switch(selectedFigure){
-            case 1:
-                cellInWhichFigureShouldBeChanged.setFigure(new Queen(figureColor, cellInWhichFigureShouldBeChanged));
-                break;
-
-            case 2:
-                cellInWhichFigureShouldBeChanged.setFigure(new Bishop(figureColor, cellInWhichFigureShouldBeChanged));
-                break;
-
-            case 3:
-                cellInWhichFigureShouldBeChanged.setFigure(new Horse(figureColor, cellInWhichFigureShouldBeChanged));
-                break;
-
-            case 4:
-                cellInWhichFigureShouldBeChanged.setFigure(new Rook(figureColor, cellInWhichFigureShouldBeChanged));
-                break;
-        }
-
+        this.board.promotePawnFigure(cellInWhichFigureShouldBeChanged, selectedFigure);
 
     }
 

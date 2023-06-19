@@ -97,13 +97,7 @@ public class Board {
             return;
         }
 
-        int startChar = 65;
-        int fromRow = 8 - from.getY();
-        char fromCol = (char) Character.toLowerCase(startChar + from.getX());
-
-        int toRow = 8 - target.getY();
-        char toCol = (char) Character.toLowerCase(startChar + target.getX());
-        this.doneMoves[this.doneMovesIdx++] = String.format("%s%s%s%s", fromRow, fromCol, toRow, toCol);
+        this.doneMoves[this.doneMovesIdx++] = String.format("%s%s", from.getPositionInChessNotation(), target.getPositionInChessNotation());
 
         this.recentMove[0] = from;
         this.recentMove[1] = target;
@@ -207,6 +201,29 @@ public class Board {
             }
         }
         return null;
+    }
+
+    public void promotePawnFigure(Cell target, int selectedFigureNum){
+
+        Colors figureColor = target.getFigure().getColor();
+
+        switch(selectedFigureNum){
+            case 1:
+                target.setFigure(new Queen(figureColor, target));
+                break;
+
+            case 2:
+                target.setFigure(new Bishop(figureColor, target));
+                break;
+
+            case 3:
+                target.setFigure(new Horse(figureColor, target));
+                break;
+
+            case 4:
+                target.setFigure(new Rook(figureColor, target));
+                break;
+        }
     }
 
 
