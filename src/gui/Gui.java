@@ -284,7 +284,7 @@ public class Gui {
     public int showChoosePawnDialog(){
         int selectedCorrectFigure;
          while(true){
-            String selectedFigureStr = JOptionPane.showInputDialog(null, "Choose the chess piece:\n1 - Queen\n2 - Bishop\n3 - Horse\n4 - Rook");
+            String selectedFigureStr = JOptionPane.showInputDialog(null, "Choose the chess piece:\n1 - Queen\n2 - Horse\n3 - Rook\n4 - Bishop");
              try {
                  if(selectedFigureStr == null){
                      continue;

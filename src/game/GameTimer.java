@@ -43,7 +43,7 @@ public class GameTimer {
 
         if(this.playersEstimatedTimeAmount[this.selectedPlayerIdx] == 0){
             this.timerInstance.stop();
-            this.gameManagerInstance.setGameOver();
+            this.gameManagerInstance.setGameOver(GameOverStates.SOMEONE_WON);
         }
 
     }

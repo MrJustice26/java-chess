@@ -32,19 +32,7 @@ public class Pawn extends Figure {
         // Common case if in front of pawn figure exists
         if(absY == 1 && absX == 0 && !target.isEmpty()) return false;
 
-        // Case if pawn in left/right side of pawn moved by 2 cells
-        if(absX == 1 && absY == 1){
-            Cell leftCell = cell.getRelativeLeftCellByX();
-            Cell rightCell = cell.getRelativeRightCellByX();
-            if(diffX == 1 && !leftCell.isEmpty() && leftCell.getFigure().getMovedState() == MovedStates.MOVED_FROM_START && leftCell.getFigure().getName() == FigureNames.PAWN || diffX == -1 && !rightCell.isEmpty() && rightCell.getFigure().getMovedState() == MovedStates.MOVED_FROM_START && rightCell.getFigure().getName() == FigureNames.PAWN){
-                if(diffY == 1 && cell.getFigure().getColor() == Colors.WHITE){
-                    return true;
-                }
-                if(diffY == -1 && cell.getFigure().getColor() == Colors.BLACK){
-                    return true;
-                }
-            }
-        }
+
 
         // Common case if figure is on diagonal
         if(absY == 1 && absX == 1 && target.isEmpty()) return false;

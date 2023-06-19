@@ -207,22 +207,26 @@ public class Board {
 
         Colors figureColor = target.getFigure().getColor();
 
+
         switch(selectedFigureNum){
             case 1:
                 target.setFigure(new Queen(figureColor, target));
                 break;
 
             case 2:
-                target.setFigure(new Bishop(figureColor, target));
-                break;
-
-            case 3:
                 target.setFigure(new Horse(figureColor, target));
                 break;
 
-            case 4:
+            case 3:
                 target.setFigure(new Rook(figureColor, target));
                 break;
+
+            case 4:
+                target.setFigure(new Bishop(figureColor, target));
+                break;
+
+            default:
+                System.out.println("Undefined num!: " + selectedFigureNum);
         }
     }
 

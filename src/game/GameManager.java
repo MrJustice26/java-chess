@@ -6,6 +6,7 @@ import models.Cell;
 import models.Colors;
 import models.figures.Figure;
 
+import java.util.Random;
 
 
 public class GameManager {
@@ -20,6 +21,8 @@ public class GameManager {
     // CHESS OPTIONS
     int TIME_AMOUNT = 90;
     int PERFORMED_MOVE_BONUS = 4;
+
+    boolean IS_ENEMY_ROBOT_ENABLED = true;
 
 
     Cell selectedCell;
@@ -72,9 +75,32 @@ public class GameManager {
             return;
         }
 
-        int selectedFigure = this.guiInstance.showChoosePawnDialog();
+        if(this.IS_ENEMY_ROBOT_ENABLED && cellInWhichFigureShouldBeChanged.getFigure().getColor() == this.enemyRobotColor){
+            Random rand = new Random();
 
-        this.boardInstance.promotePawnFigure(cellInWhichFigureShouldBeChanged, selectedFigure);
+            double generatedNum = rand.nextDouble();
+
+
+            double[] figurePercentages = {0.65, 0.20, 0.10, 0.05};
+            int randomlySelectedFigureIdx = 0;
+            double base = 0.0;
+            while(randomlySelectedFigureIdx < figurePercentages.length){
+                if(generatedNum > figurePercentages[randomlySelectedFigureIdx] + base){
+                    base += figurePercentages[randomlySelectedFigureIdx];
+                    randomlySelectedFigureIdx++;
+                } else {
+                    break;
+                }
+            }
+
+            System.out.println(generatedNum);
+            this.boardInstance.promotePawnFigure(cellInWhichFigureShouldBeChanged, randomlySelectedFigureIdx + 1);
+
+        } else {
+            int selectedFigure = this.guiInstance.showChoosePawnDialog();
+            this.boardInstance.promotePawnFigure(cellInWhichFigureShouldBeChanged, selectedFigure);
+        }
+
 
     }
 
@@ -99,10 +125,14 @@ public class GameManager {
         this.guiInstance.paintCheckedKings();
 
         if(!this.boardInstance.canPreventCheckMate(this.getCurrentPlayerColor())){
-            this.setGameOver();
+            if(this.boardInstance.isKingChecked(this.getCurrentPlayerColor())){
+                this.setGameOver(GameOverStates.SOMEONE_WON);
+            } else {
+                this.setGameOver(GameOverStates.DRAW);
+            }
         }
 
-        if(this.getCurrentPlayerColor() == this.enemyRobotColor){
+        if(this.IS_ENEMY_ROBOT_ENABLED && this.getCurrentPlayerColor() == this.enemyRobotColor){
             this.performRobotMove();
             this.runNextGameTick();
         }
@@ -135,6 +165,10 @@ public class GameManager {
     }
 
     public GameManagerCommands handlePieceButtonClick(Cell cellData){
+
+        if (this.isGameOver) {
+            return GameManagerCommands.NO_ACTIONS_TO_PERFORM;
+        }
 
         // Do some logic and send command to gui what it should to perform
         switch(this.getMoveState()){
@@ -181,7 +215,7 @@ public class GameManager {
 
                 }
 
-                if (this.isGameOver) break;
+
 
 
                 // Check if piece will perform check for his king
@@ -219,11 +253,19 @@ public class GameManager {
 
 
 
-    public void setGameOver(){
+    public void setGameOver(GameOverStates gameOverState){
+        this.isGameOver = true;
         this.timerInstance.stopTimer();
-        Colors winner = this.getOppositePlayerColor();
 
-        String dialogContent = String.format(String.format("Player %s wins!\nDo you want to rerun the game?", winner));
+        String dialogContent;
+        if(gameOverState == GameOverStates.SOMEONE_WON){
+            Colors winner = this.getOppositePlayerColor();
+            dialogContent = String.format("Player %s wins!", winner);
+        } else {
+            dialogContent = "DRAW. No one's win.";
+        }
+
+        dialogContent = dialogContent.concat("\nDo you want to rerun the game?");
 
         // Yes - 0, No - 1
         boolean hasSelectedYesOption = !(this.guiInstance.showOptionDialog(dialogContent) == 1);
