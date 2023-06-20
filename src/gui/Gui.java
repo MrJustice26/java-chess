@@ -177,7 +177,7 @@ public class Gui {
             return;
         }
         JButton button = (JButton) component;
-        int y = (int) Math.floor(buttonPosition / 8);
+        int y = buttonPosition / 8;
         int x = buttonPosition % 8;
         Cell cellData = this.board.getCell(x, y);
         GameManagerCommands receivedCommand = this.gameManager.handlePieceButtonClick(cellData);
@@ -268,10 +268,10 @@ public class Gui {
         this.estimatedTimeTextPane.setText(whitePlayerText.concat(blackPlayerText));
     }
 
-    public int showOptionDialog(String textContent){
+    public boolean showOptionDialog(String textContent){
         Object[] options = {"Tak", "Nie"};
 
-        return JOptionPane.showOptionDialog(null,
+        int selectedOptionCode = JOptionPane.showOptionDialog(null,
                 textContent,
                 "Potwierdzenie",
                 JOptionPane.YES_NO_CANCEL_OPTION,
@@ -279,6 +279,8 @@ public class Gui {
                 null,
                 options,
                 options[0]);
+
+        return !(selectedOptionCode == 1);
     }
 
     public int showChoosePawnDialog(){
