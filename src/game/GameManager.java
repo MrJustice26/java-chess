@@ -246,11 +246,11 @@ public class GameManager {
         this.isGameOver = true;
         this.timerInstance.stopTimer();
 
-        String dialogContent;
+        String dialogContent = "";
         if(gameOverState == GameOverStates.SOMEONE_WON){
             Colors winner = this.getOppositePlayerColor();
             dialogContent = String.format("Player %s wins!", winner);
-        } else {
+        } else if(gameOverState == GameOverStates.DRAW) {
             dialogContent = "DRAW. No one's win.";
         }
 
