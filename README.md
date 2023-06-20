@@ -5,11 +5,11 @@ Java Chess is a simple chess game implemented in Java using the AWT library for 
 - Graphical user interface (GUI) created with AWT library
 - Traditional chess rules and gameplay (**in progress**)
 - Player vs. player mode
+- Player vs. computer mode
 - Move validation and legal move highlighting
 - Checkmate detection and game over condition
 - Game history tracking
 - Save and load game functionality (**in progress**)
-- Player vs. computer mode (**in progress**)
 
 ## Requirements
 - Java Development Kit (JDK) 8 or higher
