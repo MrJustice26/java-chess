@@ -43,6 +43,12 @@ public class GameManager {
         this.guiInstance = new Gui(this.boardInstance, this);
         this.timerInstance = new GameTimer(this, this.TIME_AMOUNT, this.PERFORMED_MOVE_BONUS);
         this.gameEnemyInstance = new GameEnemy(this.boardInstance, this.enemyRobotColor);
+
+        this.enableRobotIfUserAgrees();
+    }
+
+    public void enableRobotIfUserAgrees(){
+        this.IS_ENEMY_ROBOT_ENABLED = this.guiInstance.showOptionDialog("Do you want to play with robot?");
     }
 
     public Colors getCurrentPlayerColor(){
@@ -149,7 +155,7 @@ public class GameManager {
 
     public GameManagerCommands handlePieceButtonClick(Cell cellData){
 
-        if (this.isGameOver || this.getCurrentPlayerColor() == this.enemyRobotColor) {
+        if (this.isGameOver || this.IS_ENEMY_ROBOT_ENABLED && this.getCurrentPlayerColor() == this.enemyRobotColor) {
             return GameManagerCommands.NO_ACTIONS_TO_PERFORM;
         }
 
@@ -250,14 +256,12 @@ public class GameManager {
 
         dialogContent = dialogContent.concat("\nDo you want to rerun the game?");
 
-        // Yes - 0, No - 1
-        boolean hasSelectedYesOption = !(this.guiInstance.showOptionDialog(dialogContent) == 1);
+        boolean selectedYesOption = this.guiInstance.showOptionDialog(dialogContent);
 
-        if(!hasSelectedYesOption){
-            return;
+        if(selectedYesOption){
+            this.reRunGame();
         }
 
-        this.reRunGame();
     }
 
     public void reRunGame(){
@@ -267,6 +271,8 @@ public class GameManager {
         this.setCurrentPlayerColor(Colors.WHITE);
         this.timerInstance.resetTimer();
         this.isGameOver = false;
+
+        this.enableRobotIfUserAgrees();
     }
 
 
