@@ -9,9 +9,6 @@ public class Figure {
 
     private String imageName;
 
-    // TODO Remove it and use MovedStates
-    private boolean hasMoved;
-
     MovedStates movedState = MovedStates.NOT_MOVED;
 
     PerformedMoveAge receivedMoveHistoryState = PerformedMoveAge.THIS_ROUND;
@@ -55,9 +52,8 @@ public class Figure {
         return target.getFigure().getColor() != this.getColor();
     }
 
-    public boolean getHasMoved(){ return this.hasMoved;}
-    public void setIsMoved(boolean moveState){
-        this.hasMoved = moveState;
+    public boolean getHasMoved(){
+        return this.movedState != MovedStates.NOT_MOVED;
     }
 
     public MovedStates getMovedState(){

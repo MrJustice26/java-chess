@@ -22,7 +22,9 @@ public class King extends Figure {
         int absX = Math.abs(cell.getX() - target.getX());
         int absY = Math.abs(cell.getY() - target.getY());
 
-        return absX <= 1 && absY <= 1;
+        if(absX > 1 || absY > 1) return false;
+
+        return true;
     }
 
     public boolean getCheckedStatus(){

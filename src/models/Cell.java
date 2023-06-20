@@ -1,6 +1,7 @@
 package models;
 
 import models.figures.Figure;
+import models.figures.MovedStates;
 
 public class Cell {
     private final int x;
@@ -95,7 +96,7 @@ public class Cell {
 
         figure.changeMovedState();
         figure.setCell(target);
-        figure.setIsMoved(true);
+        figure.setMovedState(figure.getMovedState() == MovedStates.NOT_MOVED ? MovedStates.MOVED_FROM_START : MovedStates.MOVED_FROM_NOT_START);
 
         this.setFigure(null);
     }
@@ -117,13 +118,6 @@ public class Cell {
         return isSafe;
     }
 
-    public Cell getRelativeLeftCellByX(){
-        return this.board.getCell(this.x - 1, this.y);
-    }
-
-    public Cell getRelativeRightCellByX(){
-        return this.board.getCell(this.x + 1, this.y);
-    }
 
     public boolean[][] getAvailableMoves(){
         boolean[][] availableMoves = new boolean[8][8];
@@ -151,5 +145,14 @@ public class Cell {
             }
         }
         return false;
+    }
+
+    public String getPositionInChessNotation(){
+        int startChar = 65;
+
+        int rowInChessNotation = 8 - this.getY();
+        char colInChessNotation = (char) Character.toLowerCase(startChar + this.getX());
+
+        return String.format("%s%d", colInChessNotation, rowInChessNotation);
     }
 }
