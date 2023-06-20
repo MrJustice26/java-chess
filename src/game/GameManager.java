@@ -7,7 +7,6 @@ import models.Colors;
 import models.figures.Figure;
 
 
-
 public class GameManager {
 
     // MAIN INSTANCES
@@ -150,7 +149,7 @@ public class GameManager {
 
     public GameManagerCommands handlePieceButtonClick(Cell cellData){
 
-        if (this.isGameOver) {
+        if (this.isGameOver || this.getCurrentPlayerColor() == this.enemyRobotColor) {
             return GameManagerCommands.NO_ACTIONS_TO_PERFORM;
         }
 

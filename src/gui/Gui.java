@@ -177,7 +177,7 @@ public class Gui {
             return;
         }
         JButton button = (JButton) component;
-        int y = (int) Math.floor(buttonPosition / 8);
+        int y = buttonPosition / 8;
         int x = buttonPosition % 8;
         Cell cellData = this.board.getCell(x, y);
         GameManagerCommands receivedCommand = this.gameManager.handlePieceButtonClick(cellData);

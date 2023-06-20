@@ -92,7 +92,7 @@ public class GameEnemy {
         int selectedMoveAsTargetIdx = rand.nextInt(collectedAvailableMovesArrIdx);
 
         int cellNumber = collectedAvailableMovesIdx[selectedMoveAsTargetIdx];
-        int cellY = (int) Math.floor(cellNumber / 8);
+        int cellY = cellNumber / 8;
         int cellX = cellNumber % 8;
 
         return this.boardInstance.getCell(cellX, cellY);
